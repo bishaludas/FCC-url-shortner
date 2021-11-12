@@ -34,28 +34,35 @@ app.get("/api/hello", function (req, res) {
 });
 
 app.post("/api/shorturl", async (req, res) => {
-  const url = req.body.url;
-  // check if url exists and return if it does
-  let shortnedURL = await Shortner.find({ original_url: url });
-  if (shortnedURL.length >= 1) {
-    console.log("Already exists");
-    return res.json(shortnedURL[0]);
+  try {
+    const url = req.body.url;
+    if (!new URL(url)) {
+      throw "invalid url";
+    }
+    // check if url exists and return if it does
+    let shortnedURL = await Shortner.find({ original_url: url });
+    if (shortnedURL.length >= 1) {
+      console.log("Already exists");
+      return res.json(shortnedURL[0]);
+    }
+
+    // Add new url shortner
+    console.log("creating new url shortner");
+    let multiplier = new Date().getMilliseconds();
+    let random_short_url = Math.round(Math.random() * multiplier);
+
+    let shortnerObj = new Shortner({
+      original_url: url,
+      short_url: random_short_url,
+    });
+
+    shortnerObj.save((err, data) => {
+      if (err) return console.error(err);
+      res.json(data);
+    });
+  } catch (error) {
+    res.json({ error: "invalid url" });
   }
-
-  // Add new url shortner
-  console.log("creating new url shortner");
-  let multiplier = new Date().getMilliseconds();
-  let random_short_url = Math.round(Math.random() * multiplier);
-
-  let shortnerObj = new Shortner({
-    original_url: url,
-    short_url: random_short_url,
-  });
-
-  shortnerObj.save((err, data) => {
-    if (err) return console.error(err);
-    res.json(data);
-  });
 });
 
 app.get("/api/shorturl/:id", async (req, res) => {
