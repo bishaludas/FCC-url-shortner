@@ -37,7 +37,8 @@ app.post("/api/shorturl", async (req, res) => {
   try {
     const url = req.body.url;
     let validateURL = new URL(url);
-    if (validateURL.protocol !== "http" || validateURL.protocol !== "https") {
+    console.log(validateURL);
+    if (validateURL.protocol !== "http:" && validateURL.protocol !== "https:") {
       throw "invalid url";
     }
 
