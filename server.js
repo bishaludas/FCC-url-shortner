@@ -36,9 +36,11 @@ app.get("/api/hello", function (req, res) {
 app.post("/api/shorturl", async (req, res) => {
   try {
     const url = req.body.url;
-    if (!new URL(url)) {
+    let validateURL = new URL(url);
+    if (validateURL.protocol !== "http" || validateURL.protocol !== "https") {
       throw "invalid url";
     }
+
     // check if url exists and return if it does
     let shortnedURL = await Shortner.find({ original_url: url });
     if (shortnedURL.length >= 1) {
